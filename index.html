@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#F2F4F6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14181C" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-title" content="○×ドリル">
+<meta name="mobile-web-app-capable" content="yes">
+<title>証券外務員一種 ○×ドリル</title>
+</head>
+<body>
+<style>
+:root{
+  --bg:#F2F4F6; --card:#FFFFFF; --card2:#E7EBEF; --sunk:#DDE2E7;
+  --tx:#141A1F; --tx2:#5C6873; --tx3:#8B97A3;
+  --acc:#0F9B7A; --accS:#E2F3EE; --accOn:#FFFFFF;
+  --bad:#D4482F; --badS:#FAEAE6; --badOn:#FFFFFF;
+  --r:20px; --r2:16px; --r3:14px;
+  --sh:0 1px 2px rgba(16,24,32,.05), 0 6px 18px rgba(16,24,32,.06);
+  --jp:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic","Yu Gothic UI","Noto Sans JP","Meiryo",system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#14181C; --card:#1D2329; --card2:#262D34; --sunk:#2E353D;
+  --tx:#EBF0F4; --tx2:#96A2AE; --tx3:#74808C;
+  --acc:#2FBF9A; --accS:#10302A; --accOn:#04211A;
+  --bad:#EE7057; --badS:#36201B; --badOn:#210C07;
+  --sh:0 1px 2px rgba(0,0,0,.32), 0 6px 18px rgba(0,0,0,.28);
+}}
+:root[data-theme="dark"]{
+  --bg:#14181C; --card:#1D2329; --card2:#262D34; --sunk:#2E353D;
+  --tx:#EBF0F4; --tx2:#96A2AE; --tx3:#74808C;
+  --acc:#2FBF9A; --accS:#10302A; --accOn:#04211A;
+  --bad:#EE7057; --badS:#36201B; --badOn:#210C07;
+  --sh:0 1px 2px rgba(0,0,0,.32), 0 6px 18px rgba(0,0,0,.28);
+}
+:root[data-theme="light"]{
+  --bg:#F2F4F6; --card:#FFFFFF; --card2:#E7EBEF; --sunk:#DDE2E7;
+  --tx:#141A1F; --tx2:#5C6873; --tx3:#8B97A3;
+  --acc:#0F9B7A; --accS:#E2F3EE; --accOn:#FFFFFF;
+  --bad:#D4482F; --badS:#FAEAE6; --badOn:#FFFFFF;
+  --sh:0 1px 2px rgba(16,24,32,.05), 0 6px 18px rgba(16,24,32,.06);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--tx);font-family:var(--jp);-webkit-text-size-adjust:100%}
+button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit;padding:0}
+button:focus-visible{outline:2px solid var(--acc);outline-offset:3px}
+h1,h2{margin:0;font-weight:600;line-height:1.45;text-wrap:balance}
+p{margin:0}
+
+.stage{max-width:34rem;margin:0 auto;min-height:100vh;min-height:100dvh;
+  display:flex;flex-direction:column;padding:0 1.1rem}
+.grow{flex:1;display:flex;flex-direction:column;justify-content:center;gap:1rem;padding:1.1rem 0}
+.dock{margin-top:auto;padding:1rem 0 1.6rem;display:flex;flex-direction:column;gap:.7rem}
+
+.top{display:flex;align-items:center;justify-content:space-between;gap:.9rem;padding:1.3rem 0 .3rem}
+.top h1{font-size:1.12rem;letter-spacing:.01em}
+.stamp{font-size:.78rem;color:var(--tx3);white-space:nowrap;font-variant-numeric:tabular-nums}
+.quit{font-size:.8rem;color:var(--tx3);padding:.4rem 0}
+.quit:hover{color:var(--bad)}
+
+/* progress */
+.track{height:9px;background:var(--card2);border-radius:99px;overflow:hidden;display:flex;margin-top:.9rem}
+.track i{display:block;height:100%;border-radius:99px}
+.track .g1{background:var(--acc)} .track .g2{background:var(--bad)}
+.segs{display:flex;gap:3px;margin-top:.9rem}
+.segs i{flex:1;height:5px;background:var(--card2);border-radius:99px;transition:background .2s}
+.segs i.ok{background:var(--acc)}
+.segs i.cl{background:var(--acc);opacity:.55}
+.segs i.ng{background:var(--bad)}
+.segs i.at{background:var(--tx3)}
+
+/* pills */
+.tags{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.95rem}
+.tg{font-size:.73rem;padding:.36rem .72rem;border-radius:99px;background:var(--card);
+  color:var(--tx2);line-height:1.35;white-space:nowrap}
+.tg.hot{background:var(--badS);color:var(--bad);font-weight:700}
+.tg.good{background:var(--accS);color:var(--acc);font-weight:700}
+.tg.run{background:var(--accS);color:var(--acc);font-weight:700;font-variant-numeric:tabular-nums}
+
+/* question */
+.qcard{background:var(--card);border-radius:var(--r);padding:1.5rem 1.3rem;
+  font-size:1.04rem;line-height:1.98;box-shadow:var(--sh)}
+
+/* answer */
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+.b{background:var(--card);color:var(--tx);border-radius:var(--r2);padding:1.15rem .5rem 1rem;
+  display:flex;flex-direction:column;align-items:center;gap:.2rem;box-shadow:var(--sh);
+  transition:transform .08s,background .15s}
+.b .g{font-size:1.85rem;line-height:1}
+.b .l{font-size:.74rem;color:var(--tx3)}
+.b:active{transform:scale(.97)}
+.b:disabled{opacity:.45}
+
+/* feedback */
+.fb{border-radius:var(--r);padding:1.2rem 1.2rem;display:flex;flex-direction:column;gap:.65rem;
+  animation:rise .24s cubic-bezier(.2,.7,.3,1)}
+.fb.ok{background:var(--accS)} .fb.ng{background:var(--badS)}
+.fb.win{background:var(--acc);box-shadow:var(--sh)}
+@keyframes rise{from{transform:translateY(12px);opacity:0}to{transform:none;opacity:1}}
+.fb .head{display:flex;align-items:center;gap:.7rem}
+.fb .glyph{font-size:2.15rem;line-height:1;flex:none;width:2.4rem;text-align:center;
+  animation:pop .3s cubic-bezier(.2,1.5,.4,1)}
+.fb.win .glyph{animation:burst .5s cubic-bezier(.2,1.4,.35,1)}
+@keyframes pop{from{transform:scale(.45)}to{transform:none}}
+@keyframes burst{0%{transform:scale(.3)}55%{transform:scale(1.3)}100%{transform:none}}
+.fb .said{font-size:1.14rem;font-weight:700;line-height:1.35;display:block}
+.fb .truth{font-size:.78rem;display:block;margin-top:.18rem}
+.fb .exp{font-size:.89rem;line-height:1.9}
+.fb.ok .glyph,.fb.ok .said{color:var(--acc)}
+.fb.ok .truth{color:var(--tx2)} .fb.ok .exp{color:var(--tx)}
+.fb.ng .glyph,.fb.ng .said{color:var(--bad)}
+.fb.ng .truth{color:var(--tx2)} .fb.ng .exp{color:var(--tx)}
+.fb.win .glyph,.fb.win .said{color:var(--accOn)}
+.fb.win .said{font-size:1.32rem}
+.fb.win .truth{color:var(--accOn);opacity:.8} .fb.win .exp{color:var(--accOn);opacity:.95}
+
+/* buttons */
+.cta{width:100%;border-radius:var(--r3);background:var(--acc);color:var(--accOn);
+  padding:1.1rem;font-size:1rem;font-weight:700;transition:transform .08s,filter .15s}
+.cta:hover{filter:brightness(1.06)} .cta:active{transform:scale(.99)}
+.cta:disabled{background:var(--card2);color:var(--tx3);cursor:not-allowed;transform:none;filter:none}
+.cta.plain{background:var(--card);color:var(--tx);box-shadow:var(--sh)}
+.ghost{width:100%;border-radius:var(--r3);background:transparent;color:var(--tx2);
+  padding:.95rem;font-size:.92rem;font-weight:600}
+.ghost:hover{color:var(--tx);background:var(--card)}
+.ghost:disabled{opacity:.4;cursor:not-allowed;background:none}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+
+/* home tiles */
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem}
+.tile{background:var(--card);border-radius:var(--r2);padding:1rem .6rem;text-align:center;box-shadow:var(--sh)}
+.tile b{display:block;font-size:1.85rem;font-weight:600;line-height:1.05;font-variant-numeric:tabular-nums}
+.tile span{display:block;font-size:.7rem;color:var(--tx3);margin-top:.35rem}
+.tile.bad b{color:var(--bad)} .tile.good b{color:var(--acc)}
+
+.note{font-size:.78rem;color:var(--tx3);display:flex;justify-content:space-between;
+  gap:1rem;font-variant-numeric:tabular-nums;padding:0 .2rem}
+
+/* settings */
+.setbar{background:var(--card);border-radius:var(--r2);padding:.95rem 1.1rem;display:flex;
+  align-items:center;justify-content:space-between;gap:.8rem;box-shadow:var(--sh);width:100%;text-align:left}
+.setbar .cur{font-size:.85rem;color:var(--tx);line-height:1.6}
+.setbar .cur em{font-style:normal;color:var(--tx3);font-size:.74rem;display:block;margin-bottom:.15rem}
+.setbar .arw{font-size:.8rem;color:var(--tx3);white-space:nowrap}
+.panel{background:var(--card);border-radius:var(--r2);padding:1.1rem;display:flex;
+  flex-direction:column;gap:1.05rem;box-shadow:var(--sh);animation:rise .2s ease-out}
+.grp{display:flex;flex-direction:column;gap:.5rem}
+.grp>span{font-size:.74rem;color:var(--tx3);display:flex;align-items:baseline;gap:.5rem}
+.grp>span i{font-style:normal;font-size:.7rem;color:var(--tx3);opacity:.75}
+.opts{display:flex;flex-wrap:wrap;gap:.4rem}
+.opt{border-radius:99px;background:var(--card2);color:var(--tx2);padding:.5rem .85rem;
+  font-size:.83rem;line-height:1.3;transition:background .13s,color .13s;
+  display:inline-flex;align-items:baseline;gap:.4rem}
+.opt i{font-style:normal;font-size:.72rem;opacity:.65;font-variant-numeric:tabular-nums}
+.opt[aria-pressed="true"]{background:var(--acc);color:var(--accOn);font-weight:700}
+.opt[aria-pressed="true"] i{opacity:.8}
+.opt:disabled{opacity:.35;cursor:not-allowed}
+
+/* lists */
+.list{display:flex;flex-direction:column;gap:.6rem}
+.list h2{font-size:.83rem;color:var(--tx2);font-weight:600;padding:0 .2rem}
+.list h2.win{color:var(--acc)}
+.item{background:var(--card);border-radius:var(--r2);padding:1rem 1.1rem;
+  display:flex;flex-direction:column;gap:.55rem;box-shadow:var(--sh)}
+.rowtop{display:flex;align-items:center;justify-content:space-between;gap:.5rem;flex-wrap:wrap}
+.item .qt{font-size:.88rem;line-height:1.85}
+.item .an{font-size:.84rem;line-height:1.85;color:var(--tx2);background:var(--badS);
+  border-radius:12px;padding:.7rem .85rem}
+.item .an b{color:var(--bad)}
+.item.done .an{background:var(--accS)} .item.done .an b{color:var(--acc)}
+.cnt{font-size:.72rem;font-weight:700;color:var(--bad);background:var(--badS);
+  padding:.26rem .6rem;border-radius:99px;white-space:nowrap}
+.done-badge{font-size:.72rem;font-weight:700;color:var(--acc);background:var(--accS);
+  padding:.26rem .6rem;border-radius:99px;white-space:nowrap}
+.empty{background:var(--card);border-radius:var(--r2);padding:1.5rem 1.2rem;
+  font-size:.9rem;line-height:1.9;color:var(--tx2);box-shadow:var(--sh);text-align:center}
+
+/* result */
+.score{text-align:center;padding:1.2rem 0 .4rem}
+.score b{display:block;font-size:3.6rem;font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+.score b i{font-style:normal;font-size:1.5rem;color:var(--tx3)}
+.score span{display:block;font-size:.86rem;color:var(--tx2);margin-top:.6rem}
+
+/* リセット確認 */
+.danger{background:var(--badS);border-radius:var(--r2);padding:1.15rem 1.15rem;
+  display:flex;flex-direction:column;gap:.9rem;animation:rise .2s ease-out}
+.danger p{font-size:.86rem;line-height:1.85;color:var(--tx)}
+.danger .row{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+.danger .yes{background:var(--bad);color:var(--badOn);border-radius:12px;
+  padding:.9rem;font-weight:700;font-size:.92rem;transition:transform .08s}
+.danger .yes:active{transform:scale(.98)}
+.danger .no{background:var(--card);color:var(--tx);border-radius:12px;
+  padding:.9rem;font-weight:600;font-size:.92rem}
+
+.tip{font-size:.76rem;line-height:1.8;color:var(--tx3);display:flex;
+  justify-content:space-between;gap:1rem;align-items:flex-start;padding:.2rem .2rem 0}
+.linky{color:var(--tx3);font-size:.76rem;white-space:nowrap;text-decoration:underline;text-underline-offset:3px}
+.linky:hover{color:var(--bad)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="stage" id="app"></div>
+
+<script>
+/* ===== 問題データ ここから =====
+   ../問題バンク/*.md から ../ビルド.py が生成します。ここを手で書き換えないこと。 */
+const Q=[
+{c:12,s:"経済",n:1,a:0,d:"B",q:"国民経済計算では「国内総生産＝雇用者報酬＋営業余剰・混合所得＋固定資本減耗＋（間接税＋補助金）」の式が成立する。",e:"正しくは（間接税 − 補助金）"},
+{c:12,s:"経済",n:2,a:1,d:"B",q:"GDPは一国の経済活動の様子を全体的にとらえる代表的な指標といえ、これは生産（付加価値）、分配（所得）、支出（需要）の3つの側面を持っており、3つのどの面から見ても金額が等しいという意味で「三面等価の原則」が成り立っているという。",e:"そのとおり。"},
+{c:12,s:"経済",n:3,a:0,d:"B",q:"物価関連統計のうち「GDPデフレーター」は、実質GDPを名目GDPで除して求められる。",e:"名目GDPを実質GDPで除して求める"},
+{c:12,s:"経済",n:4,a:0,d:"B",q:"内閣府は、景気動向指数と呼ばれる指標を作成し、3か月に1度公表している。",e:"内閣府が 毎月 公表"},
+{c:12,s:"経済",n:5,a:0,d:"B",q:"景気動向指数は、先行指数、一致指数及び遅行指数からなるが、東証株価指数は一致指数の1つである。",e:"東証株価指数は 先行指数"},
+{c:12,s:"経済",n:6,a:0,d:"B",q:"景気動向指数の先行指数の1つに有効求人倍率がある。",e:"有効求人倍率は 一致指数"},
+{c:12,s:"経済",n:7,a:1,d:"C",q:"DIによる景気動向指数においては、50％を上回れば景気は拡張し、逆に下回れば景気は後退しているとされている。",e:"DIは採用系列のうち拡張した系列の割合。50％を超えるか否かだけが問題で、数値の水準には意味がなく景気の方向感しかわからない"},
+{c:12,s:"経済",n:8,a:0,d:"B",q:"「全国企業短期経済観測調査（日銀短観）」は、日本銀行が2か月に1度公表している。",e:"日本銀行が 3か月ごと に公表"},
+{c:12,s:"経済",n:9,a:1,d:"B",q:"消費関連統計において、所得には、雇用者報酬、財産所得、混合所得・営業余剰、社会保障給付等がある。",e:"所得＝雇用者報酬＋財産所得＋混合所得・営業余剰＋社会保障給付 等"},
+{c:12,s:"経済",n:10,a:0,d:"C",q:"消費関連統計において、可処分所得とは、所得から所得税を差し引いたものである。",e:"所得税だけでなく 社会保険料等（健康保険料・年金保険料・雇用保険料等）も差し引く"},
+{c:12,s:"経済",n:11,a:1,d:"B",q:"平均消費性向が一定であっても、可処分所得が増加すれば消費支出は増加する。",e:"そのとおり。"},
+{c:12,s:"経済",n:12,a:0,d:"C",q:"消費関連統計において、「家計貯蓄」は、所得から可処分所得を差し引いて求められる。",e:"家計貯蓄＝可処分所得 − 消費支出"},
+{c:12,s:"経済",n:13,a:0,d:"B",q:"消費関連統計のうち「家計貯蓄率」は、家計貯蓄を財産所得で除して求められる。",e:"家計貯蓄率＝家計貯蓄 ÷ 可処分所得"},
+{c:12,s:"経済",n:14,a:1,d:"B",q:"住宅関連統計のうち新設住宅着工は工事着工ベースであるため、新設住宅着工の戸数は景気の変動に先行して動く傾向があり、景気先行指標として利用されている。",e:"そのとおり。"},
+{c:12,s:"経済",n:15,a:1,d:"B",q:"完全失業率は、完全失業者数を労働力人口で除して求められる。",e:"完全失業者＝求職活動はしたが仕事をしなかった人。労働力人口＝15歳以上で働く意思を持つ者の人口（学生は含まない）"},
+{c:12,s:"経済",n:16,a:0,d:"B",q:"労働力人口は、就業者数と完全失業者数との合計であり、労働力人口比率はこの労働力人口に占める15歳以上人口の割合である。",e:"労働力人口比率は 15歳以上人口に占める労働力人口 の割合（分子分母が逆）"},
+{c:12,s:"経済",n:17,a:0,d:"B",q:"雇用関連統計のうち「有効求人倍率」は、有効求職者数を有効求人数で除して求められる。",e:"有効求人倍率＝有効求人数 ÷ 有効求職者数（分子分母が逆）"},
+{c:12,s:"経済",n:18,a:1,d:"C",q:"有効求人倍率は、一般に好況期に上昇し、不況期に低下し、景気の動きにほぼ一致して変動する。",e:"そのとおり。"},
+{c:12,s:"経済",n:19,a:1,d:"B",q:"有効求人倍率が1を上回るということは、「仕事を探している人の数」より「企業が募集している働く人の数」が相対的に多く、逆に1を下回るとその反対の状況であることを意味している。",e:"そのとおり。"},
+{c:12,s:"経済",n:20,a:1,d:"B",q:"有効求人倍率は、公共職業安定所等に登録した人のみを対象とするので、実態よりも高く表れる傾向がある。",e:"そのとおり。"},
+{c:12,s:"経済",n:21,a:1,d:"B",q:"労働生産性とは、労働投入量1単位当たりの生産量であり、生産量を就業者数と年間総労働時間の積で除したものである。",e:"労働生産性 ＝ 生産量 ÷（就業者数 × 年間総労働時間）"},
+{c:12,s:"経済",n:22,a:1,d:"B",q:"労働投入量とは、就業者数と年間総労働時間の積で表される。",e:"そのとおり。"},
+{c:12,s:"経済",n:23,a:1,d:"B",q:"企業物価指数（CGPI）は企業間で取引される財の価格の水準を指数で示したものであり、国内企業物価指数、輸出物価指数、輸入物価指数の3つの基本分類指数と、この他に基本分類指数を組み替えたり、調整を加えた参考指数があり、日本銀行から発表される。",e:"そのとおり。"},
+{c:12,s:"経済",n:24,a:1,d:"C",q:"消費者物価指数（CPI）は総務省から発表される。",e:"CPIは家計（消費者）が購入する各種の消費財やサービスの 小売価格 の水準を指数値で示したもの"},
+{c:12,s:"経済",n:25,a:0,d:"B",q:"消費者物価指数（CPI）は、家計が購入する約600品目の価格を各品目の平均消費額で加重平均した数値であり、その算出にあたっては、土地や住宅等の価格は含まれ、直接税や社会保険料等の非消費支出は含まれない。",e:"CPIの算出にあたっては 土地や住宅等の価格も含まれない"},
+{c:12,s:"経済",n:26,a:1,d:"B",q:"GDPデフレーターはGDPに計上されるすべての財・サービスを含むのでCPIよりも包括的な物価指標である。",e:"そのとおり。"},
+{c:12,s:"経済",n:27,a:1,d:"B",q:"国際収支統計は、一定期間における一国のあらゆる対外取引を体系的に記録した統計である。",e:"そのとおり。"},
+{c:12,s:"経済",n:28,a:0,d:"B",q:"国際収支統計において、金融収支は、貿易・サービス収支、第一次所得収支及び第二次所得収支を合計して求められる。",e:"その合計は 経常収支"},
+{c:12,s:"経済",n:29,a:1,d:"A",q:"国際収支統計は、「経常収支＋資本移転等収支−金融収支＋誤差脱漏＝0」になるように統計が作成されている。",e:"そのとおり。"},
+{c:12,s:"経済",n:30,a:1,d:"A",q:"国際収支統計においては、経常収支が黒字の国は金融収支が黒字となるのに対し、経常収支が赤字の国は金融収支が赤字となるのが一般的である。",e:"そのとおり。"},
+{c:12,s:"経済",n:31,a:1,d:"C",q:"為替レートとは外国為替市場において異なる通貨が交換（売買）される際の交換比率のことであり、例えば、「1ドル130円」といった表示方法を邦貨建ての為替レートという。",e:"そのとおり。"},
+{c:12,s:"経済",n:32,a:0,d:"B",q:"ドルの需要が発生するのは、外国が日本から製品を輸入する場合や日本の債券・株式を購入する場合であり、ドルの供給が発生するのは、日本が外国から原材料や製品を輸入する場合や外国の債券・株式を購入する場合である。",e:"逆。ドルの需要＝日本が外国から輸入する場合や外国の債券・株式を購入する場合。ドルの供給＝外国が日本から輸入する場合や日本の債券・株式を購入する場合"},
+{c:12,s:"経済",n:33,a:1,d:"B",q:"貿易依存度は、自国の貿易額（輸出＋輸入）を名目GDPで除して求められる。",e:"貿易依存度は、世界貿易の動向に自分の国の経済がどの程度影響を受けるかを表したもの"},
+{c:12,s:"金融",n:34,a:1,d:"C",q:"通貨の基本的機能には、価値尺度としての機能、交換手段としての機能、価値の貯蔵手段としての機能がある。",e:"そのとおり。"},
+{c:12,s:"金融",n:35,a:1,d:"B",q:"マネーストックとは、国内の民間非金融機関が保有する通貨量（一般の法人、個人及び地方公共団体等が保有する通貨の量。）のことであり、国や金融機関が保有する預金等は含まれない。",e:"そのとおり。"},
+{c:12,s:"金融",n:36,a:1,d:"B",q:"現金通貨と預金通貨の合計をM1と呼び、M1に準通貨である定期性預金及びCDを加えたものをM3と呼ぶ。",e:"そのとおり。"},
+{c:12,s:"金融",n:37,a:1,d:"B",q:"マネーストック統計において、要求払預金はM1に計上される。",e:"そのとおり。"},
+{c:12,s:"金融",n:38,a:0,d:"B",q:"インフレが起こると通貨の価値がその分上がることになる。",e:"通貨の価値はその分 下がる"},
+{c:12,s:"金融",n:39,a:0,d:"C",q:"実質金利から物価上昇率を差し引いたものが、名目金利である。",e:"名目金利は、実質金利に物価上昇率（インフレ率）を加えた もの"},
+{c:12,s:"金融",n:40,a:0,d:"C",q:"物価上昇率年0.5％の状況で年1.5％の金利で資金を借り入れた場合、実質金利は年2％となる。",e:"実質金利＝名目金利−期待インフレ率＝1.5％−0.5％＝1.0％"},
+{c:12,s:"金融",n:41,a:1,d:"B",q:"マーシャルのkとは、貨幣の量であるマネーストックを実際の経済活動の程度を表す名目GDPで除したものである。",e:"マーシャルのk ＝ マネーストック ÷ 名目GDP"},
+{c:12,s:"金融",n:42,a:0,d:"C",q:"ドルが1ドル80円から160円になったなら、円の価値は倍になったことになる。",e:"円の価値は 半分 になった"},
+{c:12,s:"金融",n:43,a:0,d:"C",q:"直接金融とは、金融機関自身が資金余剰主体から資金を調達し、その資金を資金不足主体に貸し付ける金融手法である。",e:"問題文は 間接金融。直接金融は証券市場で企業や政府が株式や債券を発行し資金調達する方法（資金不足主体が発行した証券を資金余剰主体が購入する方法）"},
+{c:12,s:"金融",n:44,a:1,d:"B",q:"日本銀行は、銀行券の独占的発行権を有する「発券銀行」としての機能のほか、市中金融機関を対象に取引を行う「銀行の銀行」及び政府の出納業務を行う「政府の銀行」としての機能も有している。",e:"そのとおり。"},
+{c:12,s:"金融",n:45,a:0,d:"B",q:"証券金融会社は、短期金融市場における金融機関相互の資金取引の仲介業務を行っている。",e:"問題文は 短資会社 のこと"},
+{c:12,s:"金融",n:46,a:0,d:"B",q:"短資会社は、金融商品取引法に基づき免許を受けて、信用取引の決済に必要な資金や有価証券を証券会社に貸し付ける業務を行っている。",e:"問題文は 証券金融会社 のこと"},
+{c:12,s:"金融",n:47,a:1,d:"C",q:"消費者金融会社やリース会社等のいわゆるノンバンクは、社債発行を通じて調達した資金を使って貸付業務を行うことができる。",e:"そのとおり。"},
+{c:12,s:"金融",n:48,a:0,d:"C",q:"短期金融市場のうち、オープン市場は、金融機関相互の資金運用・調達の場として利用されており、非金融機関は参加できない市場である。",e:"問題文は インターバンク市場。オープン市場とは広く一般の事業法人等が参加できる市場"},
+{c:12,s:"金融",n:49,a:1,d:"B",q:"短期金融市場のうち、インターバンク市場は、コール市場と手形市場からなり、日本銀行の金融調整や金利水準誘導の場としての機能を果たしている。",e:"そのとおり。"},
+{c:12,s:"金融",n:50,a:1,d:"B",q:"コール市場における資金の最大の貸し手は信託銀行である。",e:"そのとおり。"},
+{c:12,s:"金融",n:51,a:0,d:"B",q:"インターバンク市場のうちコール市場で取引されているのは、翌日物（オーバーナイト物）のみである。",e:"翌日物（オーバーナイト物）と 各種期日物 がある"},
+{c:12,s:"金融",n:52,a:1,d:"B",q:"CDの流通市場において、事業法人等はCD現先の買い手として参加している。",e:"CD（Negotiable Certificate of Deposit）＝譲渡性預金の略称。第三者に譲渡可能な大口預金"},
+{c:12,s:"金融",n:53,a:1,d:"C",q:"国庫短期証券は、日銀の公開市場操作の対象である。",e:"そのとおり。"},
+{c:12,s:"金融",n:54,a:1,d:"B",q:"CPの流通市場においては、短期の現先取引が最大の割合を占めている。",e:"そのとおり。"},
+{c:12,s:"金融",n:55,a:0,d:"B",q:"短期プライムレートとは、日本銀行の民間金融機関に対する貸出金について適用される基準金利のことをいう。",e:"問題文は 基準割引率及び基準貸付利率。短期プライムレートは最も信用力がある企業に対する短期最優遇貸出金利"},
+{c:12,s:"金融",n:56,a:1,d:"B",q:"基準割引率及び基準貸付利率とは、日銀の民間金融機関に対する貸出金について適用される基準金利のことであり、一般的に商業手形割引歩合で代表される。",e:"そのとおり。"},
+{c:12,s:"金融",n:57,a:1,d:"C",q:"日本銀行の代表的な金融政策手段は公開市場操作である。",e:"日銀が金利を調整する主な方法は公開市場操作（オペレーション）と預金準備率操作。公開市場操作が中心"},
+{c:12,s:"金融",n:58,a:1,d:"B",q:"日銀の日々の金融調節は、日本銀行政策委員会が金融政策決定会合で決定した金融市場調節方針に従って、オペレーションによって行われている。",e:"そのとおり。"},
+{c:12,s:"金融",n:59,a:1,d:"C",q:"公開市場操作とは、日本銀行が貸付利率を入札に付して行う貸付けあるいは市場で債券や手形の売買を行って、民間金融機関が日銀に保有する当座預金残高を増減させ、短期金利に影響を与える政策である。",e:"そのとおり。"},
+{c:12,s:"金融",n:60,a:0,d:"C",q:"日本銀行の行う公開市場操作の対象は、手形に限られている。",e:"手形に限らず 国債などの債券も含まれる"},
+{c:12,s:"金融",n:61,a:1,d:"B",q:"日本銀行の行う公開市場操作の対象に、国債証券は含まれるが株券は含まれない。",e:"そのとおり。"},
+{c:12,s:"金融",n:62,a:1,d:"B",q:"日本銀行が市場で債券などを買い入れて資金供給する場合を「買いオペ」、逆に売却して資金吸収する場合を「売りオペ」という。",e:"買いオペ→民間の資金量が増加し金利が低下。売りオペ→民間の資金量が減少し金利が上昇"},
+{c:12,s:"金融",n:63,a:0,d:"B",q:"「買いオペ」とは、日本銀行が預金準備率を変更することによって金融機関の支払準備を増減させ、金融市場に影響を与えることをいう。",e:"問題文の記述は「買いオペ」ではなく 預金準備率操作"},
+{c:12,s:"金融",n:64,a:0,d:"B",q:"日本銀行が行う預金準備率操作において、預金準備率を上げる目的は、民間金融機関の貸出金利を低下させることである。",e:"預金準備率を上げる目的は貸出金利を 上昇 させること"},
+{c:12,s:"金融",n:65,a:1,d:"C",q:"BIS（Bank for International Settlements）とは、世界の主要国中央銀行の出資によって設立された国際決済銀行のことであり、中央銀行間の決済や国際金融問題に関する協議・調査を行っている。",e:"そのとおり。"},
+{c:12,s:"金融",n:66,a:0,d:"B",q:"ペイオフ制度とは、金融機関が破綻した場合、そこに預けてある預金などを、1名義当たり合算して元本と利息をあわせて1,000万円を限度に預金保険機構が払い戻す制度である。",e:"保護されるのは 元本1,000万円までと、その利息。利息は1,000万円の枠の外に上乗せされる。「元本と利息をあわせて1,000万円まで」ではない"},
+{c:14,s:"セールス業務",n:1,a:1,d:"C",q:"外務員は、金融商品取引業者等に対する投資者の信頼に応えられるように、高い倫理性に立脚して最善を尽くさなければならない。",e:"そのとおり。"},
+{c:14,s:"セールス業務",n:2,a:0,d:"C",q:"顧客の注文が相場操縦等不正な取引になることを知りながら、その注文を受託した。",e:"不正な取引になることを知りながら、その注文を受託してはならない"},
+{c:14,s:"セールス業務",n:3,a:0,d:"C",q:"投資勧誘を行った銘柄について責任を持つため、顧客と損益を共にすることを約束して投資勧誘を行った。",e:"顧客と損益を共にすることを約束して投資勧誘を行ってはならない"},
+{c:14,s:"セールス業務",n:4,a:0,d:"C",q:"かなりの自信をもって推奨できる銘柄であったので、断定的な判断による勧誘を行った。",e:"断定的判断の提供による勧誘は禁止行為にあたる"},
+{c:14,s:"セールス業務",n:5,a:0,d:"C",q:"外務員は、投資者に対し、将来における株式の価格の騰落について、断定的にアドバイスしなければならない。",e:"断定的なアドバイスは禁止されている"},
+{c:14,s:"セールス業務",n:6,a:0,d:"C",q:"投資経験があまりない顧客から、アドバイスを求められたので、外務員自身が投資の最終決定を行った。",e:"投資の最終決定者は投資者自身"},
+{c:14,s:"セールス業務",n:7,a:1,d:"C",q:"顧客にとって最適であると確信してハイ・リターンの商品を勧めたが、当該顧客は確定利付商品を選択したことから、最終的に顧客の意向に従った。",e:"そのとおり。"},
+{c:14,s:"セールス業務",n:8,a:1,d:"C",q:"投資は投資家自身が判断し、その結果は投資家自身に帰属することを顧客に理解してもらった。",e:"そのとおり。"},
+{c:14,s:"セールス業務",n:9,a:0,d:"C",q:"市況が大きく変動していたが、顧客と連絡が付かなかったため、同意を得ることなく当該顧客の計算により売買を行った。",e:"同意を得ることなく顧客の計算により売買を行うことは禁止されている"},
+{c:14,s:"セールス業務",n:10,a:0,d:"C",q:"投資者が投資目的や資金量にふさわしくない投資を行おうとしている場合、協会員は、会社での権限や立場、利用可能な比較優位情報を利用しながら投資者に代わってその投資の決定を行う。",e:"あくまで投資の決定を行うのは、その投資者自身"},
+{c:14,s:"セールス業務",n:11,a:0,d:"C",q:"投資を最終的に決定するのはあくまで投資者自身であり、市況の変動が大きい場合を除いて外務員が決定することがあってはならない。",e:"市況の変動が大きい場合であっても、投資の最終判断は投資者自身が行うもの"},
+{c:14,s:"セールス業務",n:12,a:0,d:"C",q:"目論見書に予想分配率が表示されていない証券投資信託について、過去の分配率から外務員自身が予想した分配率を示し、投資勧誘を行った。",e:"外務員自身が予想した分配率を示して投資勧誘を行ってはならない"},
+{c:14,s:"セールス業務",n:13,a:1,d:"C",q:"顧客に投資信託の仕組みについて十分説明し、理解させたうえで、投資勧誘を行った。",e:"そのとおり。"},
+{c:14,s:"セールス業務",n:14,a:1,d:"C",q:"外務員は、投資家に投資アドバイスを行う際は、合理的な根拠に基づき十分な説明を行う必要がある。また、投資家の誤解を招かないためにも、その説明内容や使用する資料などは正確でなければならない。",e:"そのとおり。"},
+{c:14,s:"セールス業務",n:15,a:1,d:"C",q:"顧客の投資目的、資金量、投資知識等を考慮し、それにあった商品、数量及び頻度の投資勧誘を行った。",e:"そのとおり。"},
+{c:14,s:"セールス業務",n:16,a:1,d:"C",q:"顧客がその投資目的や資金量にふさわしくない投資を行おうとしたので、考え直すよう適切にアドバイスした。",e:"そのとおり。"},
+{c:14,s:"セールス業務",n:17,a:1,d:"C",q:"顧客に対し、能動的にコミュニケーションをとって、当該顧客の事情を探ったうえで、顧客の投資ニーズに合うと判断した商品の勧誘を行った。",e:"そのとおり。"},
+{c:14,s:"セールス業務",n:18,a:1,d:"C",q:"外務員が適切な倫理感覚を養うには、顧客の立場に立つことが必要であり、また、第三者の目線を意識することも必要である。",e:"そのとおり。"},
+{c:14,s:"セールス業務",n:19,a:1,d:"B",q:"「金融サービス業におけるプリンシプル」とは、法令等個別ルールの基礎にあり、各金融機関等が業務を行う際、また、当局が行政を行うに当たって、尊重すべき主要な行動規範・行動原則と考えられるものである。",e:"そのとおり。"},
+{c:14,s:"セールス業務",n:20,a:0,d:"C",q:"金融サービスの提供者である各金融機関等は、成文化されたルールがない場合やルールの解釈が分かれる場合には、常に周りと同じ行動をするべきである。",e:"成文化されたルールがない場合やルールの解釈が分かれる場合であっても、プリンシプルにより自らがとるべき行動について基本的な考え方が明確となり、機動的・自主的な改善や新サービスの開発・提供に取り組む際の指針となることが期待される"},
+{c:14,s:"セールス業務",n:21,a:0,d:"B",q:"「金融サービス業におけるプリンシプル」において、利用者が反社会的勢力であっても、創意工夫をこらした自主的な取り組みにより、利用者利便の向上や社会に期待されている役割を果たすと定められている。",e:"「反社会的勢力との関係を遮断するなど金融犯罪等に利用されない態勢を構築する」と定められている"},
+{c:14,s:"セールス業務",n:22,a:0,d:"B",q:"金融サービス提供者は、利用者等からの相談や問い合わせに対し真摯に対応し、必要な情報を提供し、自己の見解を事実と説明したうえで、アドバイス等を行うとともに金融知識の普及に努める必要がある。",e:"「自己の見解を事実と説明したうえで」が不適切"},
+{c:14,s:"セールス業務",n:23,a:1,d:"B",q:"金融サービス提供者は、自身、グループと利用者の間、また、利用者とその他の利用者の間等の利益相反による弊害を防止しなければならない。",e:"そのとおり。"},
+{c:14,s:"セールス業務",n:24,a:1,d:"B",q:"「顧客本位の業務運営に関する原則」では、金融事業者が各々のおかれた状況に応じて、形式ではなく実質において顧客本位の業務運営が実現できるよう、「プリンシプルベース・アプローチ」が採用されている。",e:"そのとおり。"},
+{c:14,s:"セールス業務",n:25,a:1,d:"B",q:"「顧客本位の業務運営に関する原則」には、「金融事業者は、顧客本位の業務運営を実現するための明確な方針を策定・公表するとともに、当該方針に係る取組状況を定期的に公表すべきである。当該方針は、より良い業務運営を実現するため、定期的に見直されるべきである」と掲げられている。",e:"そのとおり。"},
+{c:14,s:"セールス業務",n:26,a:1,d:"B",q:"金融事業者は、高度の専門性と職業倫理を保持し、顧客に対して誠実・公正に業務を行い、顧客の最善の利益を図るべきであり、こうした業務運営が企業文化として定着するよう努めるべきである。",e:"そのとおり。"},
+{c:14,s:"セールス業務",n:27,a:1,d:"B",q:"金融事業者は、名目を問わず、顧客が負担する手数料その他の費用の詳細を、当該手数料等がどのようなサービスの対価に関するものかを含め、顧客が理解できるよう情報提供すべきである。",e:"そのとおり。"},
+{c:14,s:"セールス業務",n:28,a:1,d:"B",q:"「顧客本位の業務運営に関する原則」には、顧客本位の業務運営を実現するための明確な方針として、「重要な情報の分かりやすい提供」が含まれる。",e:"そのとおり。"},
+{c:14,s:"セールス業務",n:29,a:1,d:"B",q:"「顧客本位の業務運営に関する原則」には、顧客本位の業務運営を実現するための明確な方針として、「顧客にふさわしいサービスの提供」が含まれる。",e:"そのとおり。"}
+];
+/* ===== 問題データ ここまで ===== */
+
+const KEY="gaimuin-drill-v2", OLD="gaimuin-drill-v1";
+let S=load(), filt={ch:[],dif:[],only:"all"}, size=10, order="mix", openSet=false, askReset=false;
+
+/* 章と難易度は問題データから自動で作る。章が増えたら勝手に選択肢も増える */
+const CHAPTERS=[...new Set(Q.map(q=>q.c))].sort((a,b)=>a-b).map(c=>({
+  c, name:[...new Set(Q.filter(q=>q.c===c).map(q=>q.s))].join("・"),
+  n:Q.filter(q=>q.c===c).length}));
+const DIFFS=[...new Set(Q.map(q=>q.d))].sort().map(d=>({
+  d, n:Q.filter(q=>q.d===d).length}));
+let sess=[],idx=0,hit=0,miss=[],cleared=[],picked=null,run=0,best=0,marks=[],states=[];
+let view="home";
+const app=document.getElementById("app");
+
+/* 記録: {seen, wrong, last}。要復習 = last===0。正解すれば外れる。 */
+function load(){
+  try{
+    const cur=JSON.parse(localStorage.getItem(KEY));
+    if(cur)return cur;
+    const old=JSON.parse(localStorage.getItem(OLD));
+    if(old){ /* 旧バージョンの記録から引き継ぐ */
+      const m={};
+      Object.keys(old).forEach(k=>{const r=old[k];
+        m[k]={seen:r.seen||0,wrong:r.wrong||0,last:(r.box>0?1:(r.seen?0:1))}});
+      return m;
+    }
+  }catch(e){}
+  return {};
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function qid(q){return q.c+"-"+q.n}
+function rec(q){return S[qid(q)]}
+function todo(q){const r=rec(q);return !!(r&&r.last===0)}
+function esc(t){return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+
+function stateOf(q){const r=rec(q);
+  if(!r)return{k:"new",t:"はじめて"};
+  if(r.last===0)return{k:"todo",t:r.wrong>1?"要復習 "+r.wrong+"回目":"要復習"};
+  if(r.wrong>0)return{k:"clear",t:"クリア済み"};
+  return{k:"ok",t:"正解ずみ"}}
+
+function pool(){return Q.filter(q=>{
+  if(filt.ch.length&&filt.ch.indexOf(q.c)<0)return false;
+  if(filt.dif.length&&filt.dif.indexOf(q.d)<0)return false;
+  const r=rec(q);
+  if(filt.only==="todo"&&!todo(q))return false;
+  if(filt.only==="past"&&!(r&&r.wrong>0))return false;
+  if(filt.only==="unseen"&&r)return false;
+  return true;
+})}
+
+function tally(list){let td=0,seen=0,fresh=0,past=0,tries=0,wrongs=0;
+  list.forEach(q=>{const r=rec(q);
+    if(!r){fresh++;return}
+    seen++;tries+=r.seen;wrongs+=r.wrong;
+    if(r.wrong>0)past++;
+    if(r.last===0)td++});
+  return{todo:td,seen,fresh,past,tries,wrongs,total:list.length,
+    rate:tries?Math.round((tries-wrongs)/tries*100):null}}
+
+function todoList(){return Q.filter(todo)
+  .sort((a,b)=>rec(b).wrong-rec(a).wrong||a.c-b.c||a.n-b.n)}
+function clearedList(){return Q.filter(q=>{const r=rec(q);return r&&r.wrong>0&&r.last===1})
+  .sort((a,b)=>rec(b).wrong-rec(a).wrong||a.c-b.c||a.n-b.n)}
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+function start(){
+  const p=pool(), n=Math.min(size,p.length);
+  if(!n){view="home";openSet=true;render();return}
+  let pick;
+  if(order==="rand"){
+    pick=shuffle(p.slice()).slice(0,n);
+  }else{
+    const A=shuffle(p.filter(todo));
+    const B=shuffle(p.filter(q=>!rec(q)));
+    const C=shuffle(p.filter(q=>{const r=rec(q);return r&&r.last===1&&r.wrong>0}));
+    const D=shuffle(p.filter(q=>{const r=rec(q);return r&&r.wrong===0}));
+    const cap=Math.max(1,Math.ceil(n*0.6));
+    pick=A.slice(0,cap);
+    const take=a=>{if(pick.length<n)pick=pick.concat(a.slice(0,n-pick.length))};
+    take(B); take(A.slice(cap)); take(C); take(D);
+    pick=shuffle(pick);
+  }
+  sess=pick;states=sess.map(stateOf);
+  idx=0;hit=0;miss=[];cleared=[];picked=null;run=0;best=0;marks=[];
+  view="quiz";render();
+}
+function answer(v){
+  if(picked!==null)return;
+  const q=sess[idx],ok=(v===1)===(q.a===1),was=states[idx]&&states[idx].k;
+  picked=v;marks[idx]=ok?(was==="todo"?"cl":"ok"):"ng";
+  if(ok){hit++;run++;best=Math.max(best,run);if(was==="todo")cleared.push(q)}
+  else{miss.push(q);run=0}
+  const k=qid(q),r=S[k]||{seen:0,wrong:0,last:1};
+  r.seen++;r.last=ok?1:0;if(!ok)r.wrong++;
+  S[k]=r;save();render();
+}
+function next(){picked=null;idx++;if(idx>=sess.length)view="done";render()}
+
+function h(str){const t=document.createElement("template");t.innerHTML=str.trim();return t.content.firstElementChild}
+function render(){
+  app.innerHTML="";
+  view==="home"?home():view==="quiz"?quiz():view==="log"?log():result();
+  window.scrollTo(0,0);
+}
+function card(q,badge,done){
+  const r=rec(q);
+  return h(`<div class="item${done?" done":""}">
+    <div class="rowtop">
+      <span class="tg">${q.c}章 ${q.s} 問${q.n} ・ ${q.d}</span>
+      ${badge||(r&&r.wrong?`<span class="cnt">${r.wrong}回まちがえた</span>`:"")}
+    </div>
+    <p class="qt">${esc(q.q)}</p>
+    <p class="an"><b>正しくは ${q.a?"○":"×"}</b>　${esc(q.e)}</p>
+  </div>`)}
+
+const ON={all:"全部から",todo:"要復習だけ",past:"つまずいた問題",unseen:"未着手だけ"};
+function sumCh(){
+  if(!filt.ch.length)return "すべての章";
+  if(filt.ch.length<=3)return filt.ch.slice().sort((a,b)=>a-b).map(c=>c+"章").join("・");
+  return filt.ch.length+"章を選択";
+}
+function sumDif(){
+  if(!filt.dif.length)return "難易度すべて";
+  return "難易度 "+filt.dif.slice().sort().join("・");
+}
+
+/* ---------- home ---------- */
+function home(){
+  app.appendChild(h(`<header class="top"><h1>証券外務員一種 ○×ドリル</h1><span class="stamp">${Q.length}問</span></header>`));
+  const body=h(`<div class="grow"></div>`);
+  const t=tally(Q),pc=n=>t.total?n/t.total*100:0;
+  body.appendChild(h(`<div class="tiles">
+    <div class="tile bad"><b>${t.todo}</b><span>要復習</span></div>
+    <div class="tile good"><b>${t.seen-t.todo}</b><span>解けた</span></div>
+    <div class="tile"><b>${t.fresh}</b><span>未着手</span></div>
+  </div>`));
+  body.appendChild(h(`<div class="track" role="img" aria-label="要復習${t.todo}問、解けた${t.seen-t.todo}問、未着手${t.fresh}問">
+    <i class="g1" style="width:${pc(t.seen-t.todo)}%"></i><i class="g2" style="width:${pc(t.todo)}%"></i></div>`));
+  if(t.rate!==null)body.appendChild(h(`<div class="note"><span>${t.tries}回 解答</span><span>正答率 ${t.rate}％</span></div>`));
+
+  const p=pool();
+  const bar=h(`<button class="setbar" type="button" aria-expanded="${openSet}">
+    <span class="cur"><em>出題する条件</em>${sumCh()} ・ ${sumDif()} ・ ${ON[filt.only]} ・ ${size===999?"全部":size+"問"}</span>
+    <span class="arw">${openSet?"閉じる":"変える"}</span></button>`);
+  bar.addEventListener("click",()=>{openSet=!openSet;render()});
+  body.appendChild(bar);
+
+  if(openSet){
+    const panel=h(`<div class="panel"></div>`);
+    const grp=(label,key,opts)=>{
+      const g=h(`<div class="grp"><span>${label}</span><div class="opts"></div></div>`);
+      const box=g.querySelector(".opts");
+      opts.forEach(([v,txt,dis])=>{
+        const b=h(`<button class="opt" type="button" aria-pressed="${filt[key]===v}" ${dis?"disabled":""}>${txt}</button>`);
+        if(!dis)b.addEventListener("click",()=>{filt[key]=v;render()});
+        box.appendChild(b);
+      });
+      return g;
+    };
+    /* 複数選べる。なにも選ばなければ「すべて」 */
+    const multi=(label,key,hint,opts)=>{
+      const g=h(`<div class="grp"><span>${label}<i>${hint}</i></span><div class="opts"></div></div>`);
+      const box=g.querySelector(".opts");
+      const all=h(`<button class="opt" type="button" aria-pressed="${!filt[key].length}">すべて</button>`);
+      all.addEventListener("click",()=>{filt[key]=[];render()});
+      box.appendChild(all);
+      opts.forEach(([v,txt,cnt])=>{
+        const on=filt[key].indexOf(v)>=0;
+        const b=h(`<button class="opt" type="button" aria-pressed="${on}">${txt}<i>${cnt}</i></button>`);
+        b.addEventListener("click",()=>{
+          const i=filt[key].indexOf(v);
+          if(i>=0)filt[key].splice(i,1);else filt[key].push(v);
+          render();
+        });
+        box.appendChild(b);
+      });
+      return g;
+    };
+    panel.appendChild(multi("範囲","ch","複数えらべます",
+      CHAPTERS.map(x=>[x.c,`${x.c}章 ${x.name}`,x.n])));
+    panel.appendChild(multi("難易度","dif","複数えらべます",
+      DIFFS.map(x=>[x.d,x.d,x.n])));
+    panel.appendChild(grp("対象","only",[
+      ["all","全部"],["todo",`要復習${t.todo?" "+t.todo:""}`,!t.todo],
+      ["past",`つまずいた${t.past?" "+t.past:""}`,!t.past],["unseen","未着手",!t.fresh]]));
+    const og=h(`<div class="grp"><span>出題順</span><div class="opts"></div></div>`);
+    [["mix","要復習を優先"],["rand","完全ランダム"]].forEach(([v,txt])=>{
+      const b=h(`<button class="opt" type="button" aria-pressed="${order===v}">${txt}</button>`);
+      b.addEventListener("click",()=>{order=v;render()});
+      og.querySelector(".opts").appendChild(b);
+    });
+    panel.appendChild(og);
+    const sg=h(`<div class="grp"><span>出題数</span><div class="opts"></div></div>`);
+    [10,20,50,999].forEach(v=>{
+      const b=h(`<button class="opt" type="button" aria-pressed="${size===v}">${v===999?"全部":v+"問"}</button>`);
+      b.addEventListener("click",()=>{size=v;render()});
+      sg.querySelector(".opts").appendChild(b);
+    });
+    panel.appendChild(sg);
+    body.appendChild(panel);
+  }
+  app.appendChild(body);
+
+  const dock=h(`<div class="dock"></div>`);
+  const go=h(`<button class="cta" type="button" ${p.length?"":"disabled"}>${p.length?Math.min(size,p.length)+"問 はじめる":"該当する問題がありません"}</button>`);
+  go.addEventListener("click",start);
+  dock.appendChild(go);
+  const lg=h(`<button class="ghost" type="button" ${t.todo||t.past?"":"disabled"}>復習リスト${t.todo?"（要復習 "+t.todo+"問）":""}</button>`);
+  if(t.todo||t.past)lg.addEventListener("click",()=>{view="log";render()});
+  dock.appendChild(lg);
+  if(askReset){
+    const dg=h(`<div class="danger">
+      <p>いままでの記録をすべて消します。<br>
+      要復習 ${t.todo}問、クリア済み ${t.past}問、${t.tries}回ぶんの解答履歴が消えて、最初の状態に戻ります。</p>
+      <div class="row"></div></div>`);
+    const yes=h(`<button class="yes" type="button">消す</button>`);
+    yes.addEventListener("click",()=>{S={};save();askReset=false;render()});
+    const no=h(`<button class="no" type="button">やめる</button>`);
+    no.addEventListener("click",()=>{askReset=false;render()});
+    dg.querySelector(".row").appendChild(yes);dg.querySelector(".row").appendChild(no);
+    dock.appendChild(dg);
+  }else{
+    const tip=h(`<div class="tip"><span>間違えた問題は要復習に入り、次に正解すると外れます。</span></div>`);
+    const rs=h(`<button class="linky" type="button" ${t.seen?"":"disabled"}>記録を消す</button>`);
+    if(t.seen)rs.addEventListener("click",()=>{askReset=true;render()});
+    tip.appendChild(rs);
+    dock.appendChild(tip);
+  }
+  app.appendChild(dock);
+}
+
+/* ---------- 復習リスト ---------- */
+function log(){
+  const td=todoList(),cl=clearedList();
+  app.appendChild(h(`<header class="top"><h1>復習リスト</h1><span class="stamp">要復習 ${td.length}問</span></header>`));
+  const body=h(`<div class="grow"></div>`);
+  if(td.length){
+    const box=h(`<div class="list"><h2>要復習 ${td.length}問 ・ 次に正解すれば外れます</h2></div>`);
+    td.forEach(q=>box.appendChild(card(q)));
+    body.appendChild(box);
+  }else{
+    body.appendChild(h(`<p class="empty">要復習はゼロ。いま解けない問題はありません。</p>`));
+  }
+  if(cl.length){
+    const box=h(`<div class="list"><h2 class="win">クリア済み ${cl.length}問 ・ つまずいて解き直した</h2></div>`);
+    cl.forEach(q=>box.appendChild(card(q,`<span class="done-badge">クリア</span>`,true)));
+    body.appendChild(box);
+  }
+  app.appendChild(body);
+
+  const dock=h(`<div class="dock"></div>`);
+  if(td.length){
+    const go=h(`<button class="cta" type="button">要復習の${td.length}問を解く</button>`);
+    go.addEventListener("click",()=>{filt={ch:[],dif:[],only:"todo"};size=999;order="mix";start()});
+    dock.appendChild(go);
+  }
+  const back=h(`<button class="ghost" type="button">戻る</button>`);
+  back.addEventListener("click",()=>{view="home";render()});
+  dock.appendChild(back);
+  app.appendChild(dock);
+}
+
+/* ---------- quiz ---------- */
+function quiz(){
+  const q=sess[idx],st=states[idx]||{k:"new",t:"はじめて"};
+  const head=h(`<header class="top"><h1>${idx+1} / ${sess.length}</h1></header>`);
+  const quit=h(`<button class="quit" type="button">やめる</button>`);
+  quit.addEventListener("click",()=>{view="home";picked=null;render()});
+  head.appendChild(quit);
+  app.appendChild(head);
+
+  const segs=h(`<div class="segs"></div>`);
+  for(let i=0;i<sess.length;i++)segs.appendChild(h(`<i class="${marks[i]||(i===idx?"at":"")}"></i>`));
+  app.appendChild(segs);
+
+  const tags=h(`<div class="tags"></div>`);
+  tags.appendChild(h(`<span class="tg">${q.c}章 ${q.s} 問${q.n}</span>`));
+  tags.appendChild(h(`<span class="tg">難易度 ${q.d}</span>`));
+  if(st.k==="todo")tags.appendChild(h(`<span class="tg hot">${st.t}</span>`));
+  else if(st.k==="clear")tags.appendChild(h(`<span class="tg good">クリア済み</span>`));
+  if(run>=3)tags.appendChild(h(`<span class="tg run">連続 ${run}</span>`));
+  app.appendChild(tags);
+
+  const body=h(`<div class="grow"></div>`);
+  body.appendChild(h(`<div class="qcard">${esc(q.q)}</div>`));
+  app.appendChild(body);
+
+  const dock=h(`<div class="dock"></div>`);
+  if(picked===null){
+    const m=h(`<div class="btns"></div>`);
+    [[1,"○","正しい"],[0,"×","誤り"]].forEach(([v,g,l])=>{
+      const b=h(`<button class="b" type="button" aria-label="${l}"><span class="g">${g}</span><span class="l">${l}</span></button>`);
+      b.addEventListener("click",()=>answer(v));
+      m.appendChild(b);
+    });
+    dock.appendChild(m);
+  }else{
+    const ok=(picked===1)===(q.a===1), win=ok&&st.k==="todo";
+    const said=win?"クリア！":ok?"正解":"不正解";
+    const sub=win?"要復習から外しました　残り "+tally(Q).todo+"問"
+      :ok?`答えは ${q.a?"○":"×"}`
+      :`あなたの答え ${picked?"○":"×"} ／ 正しくは ${q.a?"○":"×"} ・ 要復習に入れました`;
+    dock.appendChild(h(`<div class="fb ${ok?"ok":"ng"}${win?" win":""}">
+      <div class="head"><span class="glyph">${ok?"○":"×"}</span>
+        <span><span class="said">${said}</span><span class="truth">${sub}</span></span></div>
+      <p class="exp">${esc(q.e)}</p>
+    </div>`));
+    const c=h(`<button class="cta${win?"":" plain"}" type="button">${idx+1<sess.length?"つづける":"結果を見る"}</button>`);
+    c.addEventListener("click",next);
+    dock.appendChild(c);
+  }
+  app.appendChild(dock);
+}
+
+/* ---------- result ---------- */
+function result(){
+  const pct=Math.round(hit/sess.length*100);
+  app.appendChild(h(`<header class="top"><h1>結果</h1><span class="stamp">${sess.length}問</span></header>`));
+  const body=h(`<div class="grow"></div>`);
+  body.appendChild(h(`<div class="score"><b>${hit}<i> / ${sess.length}</i></b>
+    <span>正答率 ${pct}％ ・ 最大連続 ${best}問</span></div>`));
+
+  if(cleared.length){
+    const box=h(`<div class="list"><h2 class="win">クリア ${cleared.length}問 ・ 要復習から外れました</h2></div>`);
+    cleared.forEach(q=>box.appendChild(card(q,`<span class="done-badge">クリア</span>`,true)));
+    body.appendChild(box);
+  }
+  if(miss.length){
+    const box=h(`<div class="list"><h2>要復習に入れた ${miss.length}問</h2></div>`);
+    miss.forEach(q=>box.appendChild(card(q)));
+    body.appendChild(box);
+  }
+  if(!cleared.length&&!miss.length)body.appendChild(h(`<p class="empty">全問正解。要復習はそのままです。</p>`));
+  app.appendChild(body);
+
+  const dock=h(`<div class="dock"></div>`);
+  const t=tally(Q);
+  dock.appendChild(h(`<div class="note"><span>要復習 ${t.todo}問</span><span>通算正答率 ${t.rate}％</span></div>`));
+  const pair=h(`<div class="pair"></div>`);
+  const again=h(`<button class="cta" type="button">もう一度</button>`);
+  again.addEventListener("click",start);
+  const back=h(`<button class="ghost" type="button">ホームへ</button>`);
+  back.addEventListener("click",()=>{view="home";render()});
+  pair.appendChild(again);pair.appendChild(back);
+  dock.appendChild(pair);
+  app.appendChild(dock);
+}
+
+render();
+</script>
+</body>
+</html>
