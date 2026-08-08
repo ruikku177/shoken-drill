@@ -203,6 +203,7 @@ p{margin:0}
 .danger .no{background:var(--card);color:var(--tx);border-radius:12px;
   padding:.9rem;font-weight:600;font-size:.92rem}
 
+.tip em{font-style:normal;opacity:.72;font-variant-numeric:tabular-nums}
 .tip{font-size:.76rem;line-height:1.8;color:var(--tx3);display:flex;
   justify-content:space-between;gap:1rem;align-items:flex-start;padding:.2rem .2rem 0}
 .linky{color:var(--tx3);font-size:.76rem;white-space:nowrap;text-decoration:underline;text-underline-offset:3px}
@@ -312,6 +313,7 @@ const Q=[
 {c:14,s:"セールス業務",n:28,a:1,d:"B",q:"「顧客本位の業務運営に関する原則」には、顧客本位の業務運営を実現するための明確な方針として、「重要な情報の分かりやすい提供」が含まれる。",e:"そのとおり。"},
 {c:14,s:"セールス業務",n:29,a:1,d:"B",q:"「顧客本位の業務運営に関する原則」には、顧客本位の業務運営を実現するための明確な方針として、「顧客にふさわしいサービスの提供」が含まれる。",e:"そのとおり。"}
 ];
+const BUILT="2026/08/08";
 /* ===== 問題データ ここまで ===== */
 
 const KEY="gaimuin-drill-v2", OLD="gaimuin-drill-v1";
@@ -544,7 +546,8 @@ function home(){
     dg.querySelector(".row").appendChild(yes);dg.querySelector(".row").appendChild(no);
     dock.appendChild(dg);
   }else{
-    const tip=h(`<div class="tip"><span>間違えた問題は要復習に入り、次に正解すると外れます。</span></div>`);
+    const tip=h(`<div class="tip"><span>間違えた問題は要復習に入り、次に正解すると外れます。<br>
+      <em>${Q.length}問 ・ ${typeof BUILT!=="undefined"?BUILT:""} 更新</em></span></div>`);
     const rs=h(`<button class="linky" type="button" ${t.seen?"":"disabled"}>記録を消す</button>`);
     if(t.seen)rs.addEventListener("click",()=>{askReset=true;render()});
     tip.appendChild(rs);
