@@ -6,3 +6,9 @@
 *.heic
 問題バンク/
 講義ノート/
+
+# アイコンだけは例外（アイコン生成.py が作る）
+!icon-180.png
+!icon-192.png
+!icon-512.png
+!favicon.png
