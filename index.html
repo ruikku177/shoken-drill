@@ -7,7 +7,7 @@
 <meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#F2F4F6" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#14181C" media="(prefers-color-scheme: dark)">
-<meta name="apple-mobile-web-app-title" content="○×ドリル">
+<meta name="apple-mobile-web-app-title" content="証券外務員問題集">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="mobile-web-app-capable" content="yes">
@@ -15,7 +15,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
 <link rel="manifest" href="manifest.json">
-<title>証券外務員一種 ○×ドリル</title>
+<title>証券外務員問題集</title>
 </head>
 <body>
 <style>
@@ -450,7 +450,7 @@ function sumDif(){
 
 /* ---------- home ---------- */
 function home(){
-  app.appendChild(h(`<header class="top"><h1>証券外務員一種 ○×ドリル</h1><span class="stamp">${Q.length}問</span></header>`));
+  app.appendChild(h(`<header class="top"><h1>証券外務員問題集</h1><span class="stamp">${Q.length}問</span></header>`));
   const body=h(`<div class="grow"></div>`);
   const t=tally(Q),pc=n=>t.total?n/t.total*100:0;
   body.appendChild(h(`<div class="tiles">
