@@ -408,10 +408,17 @@ function answer(v){
 function next(){picked=null;idx++;if(idx>=sess.length)view="done";render()}
 
 function h(str){const t=document.createElement("template");t.innerHTML=str.trim();return t.content.firstElementChild}
+/* 画面が変わったときだけ先頭へ。同じ画面の描き直し（条件のタップ、解答の判定）では
+   見ている位置をそのまま保つ。 */
+let lastScreen=null;
 function render(){
+  const screen=view==="quiz"?"quiz-"+idx:view;
+  const y=window.scrollY;
   app.innerHTML="";
   view==="home"?home():view==="quiz"?quiz():view==="log"?log():result();
-  window.scrollTo(0,0);
+  if(screen!==lastScreen)window.scrollTo(0,0);
+  else window.scrollTo(0,y);
+  lastScreen=screen;
 }
 function card(q,badge,done){
   const r=rec(q);
