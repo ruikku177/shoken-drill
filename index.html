@@ -170,6 +170,10 @@ p{margin:0}
 
 .note{font-size:.78rem;color:var(--tx3);display:flex;justify-content:space-between;
   gap:1rem;font-variant-numeric:tabular-nums;padding:0 .2rem}
+.scope{display:flex;align-items:baseline;justify-content:space-between;gap:.8rem;
+  padding:0 .2rem;font-size:.82rem;color:var(--tx2);line-height:1.5}
+.scope b{font-size:.82rem;font-weight:700;color:var(--tx3);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
 
 /* settings */
 .setbar{background:var(--card);border-radius:var(--r2);padding:.95rem 1.1rem;display:flex;
@@ -338,7 +342,7 @@ const Q=[
 {c:14,s:"セールス業務",n:28,d:"B",x:1,a:1,q:"「顧客本位の業務運営に関する原則」には、顧客本位の業務運営を実現するための明確な方針として、「重要な情報の分かりやすい提供」が含まれる。",e:"原則5「重要な情報の分かりやすい提供」。原則は全部で7つある。5と6の名称を入れ替えるひっかけに注意。"},
 {c:14,s:"セールス業務",n:29,d:"B",x:1,a:1,q:"「顧客本位の業務運営に関する原則」には、顧客本位の業務運営を実現するための明確な方針として、「顧客にふさわしいサービスの提供」が含まれる。",e:"原則6「顧客にふさわしいサービスの提供」。問28の原則5とセットで覚える。"}
 ];
-const BUILT="2026/08/08";
+const BUILT="2026/08/09";
 /* ===== 問題データ ここまで ===== */
 
 const KEY="gaimuin-drill-v2", OLD="gaimuin-drill-v1";
@@ -384,17 +388,30 @@ function stateOf(q){const r=rec(q);
   if(r.wrong>0)return{k:"clear",t:"クリア済み"};
   return{k:"ok",t:"正解ずみ"}}
 
-function pool(){return Q.filter(q=>{
+/* 章・難易度・形式でしぼった範囲。ホームの数字はこれを母数にする。
+   「対象」（要復習だけ等）は3つの数字のどれを引くかの指定なので、ここには含めない。
+   含めると「要復習だけ」を選んだとき要復習以外が0になり、数字が意味を失う。 */
+function scopePool(){return Q.filter(q=>{
   if(filt.ch.length&&filt.ch.indexOf(q.c)<0)return false;
   if(filt.dif.length&&filt.dif.indexOf(q.d)<0)return false;
   if(filt.type==="mc"&&!isMC(q))return false;
   if(filt.type==="ox"&&isMC(q))return false;
+  return true;
+})}
+function pool(){return scopePool().filter(q=>{
   const r=rec(q);
   if(filt.only==="todo"&&!todo(q))return false;
   if(filt.only==="past"&&!(r&&r.wrong>0))return false;
   if(filt.only==="unseen"&&r)return false;
   return true;
 })}
+const TY2={ox:"○×",mc:"五肢選択"};
+function scopeLabel(){
+  const p=[sumCh()];
+  if(filt.dif.length)p.push(sumDif());
+  if(filt.type!=="all")p.push(TY2[filt.type]);
+  return p.join(" ・ ");
+}
 
 function tally(list){let td=0,seen=0,fresh=0,past=0,tries=0,wrongs=0;
   list.forEach(q=>{const r=rec(q);
@@ -405,9 +422,9 @@ function tally(list){let td=0,seen=0,fresh=0,past=0,tries=0,wrongs=0;
   return{todo:td,seen,fresh,past,tries,wrongs,total:list.length,
     rate:tries?Math.round((tries-wrongs)/tries*100):null}}
 
-function todoList(){return Q.filter(todo)
+function todoList(){return scopePool().filter(todo)
   .sort((a,b)=>rec(b).wrong-rec(a).wrong||a.c-b.c||a.n-b.n)}
-function clearedList(){return Q.filter(q=>{const r=rec(q);return r&&r.wrong>0&&r.last===1})
+function clearedList(){return scopePool().filter(q=>{const r=rec(q);return r&&r.wrong>0&&r.last===1})
   .sort((a,b)=>rec(b).wrong-rec(a).wrong||a.c-b.c||a.n-b.n)}
 
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
@@ -489,7 +506,8 @@ function sumDif(){
 function home(){
   app.appendChild(h(`<header class="top"><h1>証券外務員問題集</h1><span class="stamp">${Q.length}問</span></header>`));
   const body=h(`<div class="grow"></div>`);
-  const t=tally(Q),pc=n=>t.total?n/t.total*100:0;
+  const sp=scopePool(), t=tally(sp), pc=n=>t.total?n/t.total*100:0;
+  body.appendChild(h(`<div class="scope"><span>${scopeLabel()}</span><b>${t.total}問</b></div>`));
   body.appendChild(h(`<div class="tiles">
     <div class="tile bad"><b>${t.todo}</b><span>要復習</span></div>
     <div class="tile good"><b>${t.seen-t.todo}</b><span>解けた</span></div>
@@ -497,7 +515,8 @@ function home(){
   </div>`));
   body.appendChild(h(`<div class="track" role="img" aria-label="要復習${t.todo}問、解けた${t.seen-t.todo}問、未着手${t.fresh}問">
     <i class="g1" style="width:${pc(t.seen-t.todo)}%"></i><i class="g2" style="width:${pc(t.todo)}%"></i></div>`));
-  if(t.rate!==null)body.appendChild(h(`<div class="note"><span>${t.tries}回 解答</span><span>正答率 ${t.rate}％</span></div>`));
+  body.appendChild(h(`<div class="note"><span>${t.past?"苦手 "+t.past+"問":"苦手 なし"}</span>
+    <span>${t.rate!==null?"この範囲で "+t.tries+"回 ・ 正答率 "+t.rate+"％":"まだ解いていません"}</span></div>`));
 
   const p=pool();
   const bar=h(`<button class="setbar" type="button" aria-expanded="${openSet}">
@@ -573,9 +592,10 @@ function home(){
   if(t.todo||t.past)lg.addEventListener("click",()=>{view="log";render()});
   dock.appendChild(lg);
   if(askReset){
+    const g=tally(Q);  /* 消えるのは全範囲なので、絞り込みに関係なく全体の数字を出す */
     const dg=h(`<div class="danger">
-      <p>いままでの記録をすべて消します。<br>
-      要復習 ${t.todo}問、クリア済み ${t.past}問、${t.tries}回ぶんの解答履歴が消えて、最初の状態に戻ります。</p>
+      <p>いままでの記録を<b>すべて</b>消します。絞り込みに関係なく全範囲が対象です。<br>
+      要復習 ${g.todo}問、つまずいた記録 ${g.past}問、${g.tries}回ぶんの解答履歴が消えて、最初の状態に戻ります。</p>
       <div class="row"></div></div>`);
     const yes=h(`<button class="yes" type="button">消す</button>`);
     yes.addEventListener("click",()=>{S={};save();askReset=false;render()});
@@ -599,6 +619,7 @@ function log(){
   const td=todoList(),cl=clearedList();
   app.appendChild(h(`<header class="top"><h1>復習リスト</h1><span class="stamp">要復習 ${td.length}問</span></header>`));
   const body=h(`<div class="grow"></div>`);
+  body.appendChild(h(`<div class="scope"><span>${scopeLabel()}</span><b>${scopePool().length}問から</b></div>`));
   if(td.length){
     const box=h(`<div class="list"><h2>要復習 ${td.length}問 ・ 次に正解すれば外れます</h2></div>`);
     td.forEach(q=>box.appendChild(card(q)));
