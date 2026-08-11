@@ -518,6 +518,18 @@ function pool(){return scopePool().filter(q=>{
   if(filt.only==="unseen"&&r)return false;
   return true;
 })}
+/* 範囲・難易度・形式のボタンに出す件数は、他の条件を効かせたうえで数える。
+   自分自身の軸（例えば難易度ボタンなら難易度）だけは外す。
+   これをしないと「1章に絞ったのに難易度の内訳が全章のまま」になる。 */
+function facetPool(exclude){return Q.filter(q=>{
+  if(exclude!=="ch"&&filt.ch.length&&filt.ch.indexOf(q.c)<0)return false;
+  if(exclude!=="dif"&&filt.dif.length&&filt.dif.indexOf(q.d)<0)return false;
+  if(exclude!=="type"){
+    if(filt.type==="mc"&&!isMC(q))return false;
+    if(filt.type==="ox"&&isMC(q))return false;
+  }
+  return true;
+})}
 const TY2={ox:"○×",mc:"五肢選択"};
 function scopeLabel(){
   const p=[sumCh()];
@@ -669,13 +681,16 @@ function home(){
       });
       return g;
     };
+    const chPool=facetPool("ch"), difPool=facetPool("dif"), typePool=facetPool("type");
     panel.appendChild(multi("範囲","ch","複数えらべます",
-      CHAPTERS.map(x=>[x.c,`${x.c}章 ${x.name}`,x.n])));
+      CHAPTERS.map(x=>[x.c,`${x.c}章 ${x.name}`,chPool.filter(q=>q.c===x.c).length])));
     panel.appendChild(multi("難易度","dif","複数えらべます",
-      DIFFS.map(x=>[x.d,x.d,x.n])));
-    const nMC=Q.filter(isMC).length;
-    if(nMC)panel.appendChild(grp("形式","type",[
-      ["all","すべて"],["ox",`○× ${Q.length-nMC}`],["mc",`五肢選択 ${nMC}`]]));
+      DIFFS.map(x=>[x.d,x.d,difPool.filter(q=>q.d===x.d).length])));
+    if(Q.some(isMC)){
+      const nMC=typePool.filter(isMC).length, nOX=typePool.length-nMC;
+      panel.appendChild(grp("形式","type",[
+        ["all","すべて"],["ox",`○× ${nOX}`],["mc",`五肢選択 ${nMC}`]]));
+    }
     panel.appendChild(grp("対象","only",[
       ["all","全部"],["todo",`要復習${t.todo?" "+t.todo:""}`,!t.todo],
       ["past",`つまずいた${t.past?" "+t.past:""}`,!t.past],["unseen","未着手",!t.fresh]]));
