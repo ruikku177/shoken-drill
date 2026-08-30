@@ -155,6 +155,15 @@ p{margin:0}
 .fb.win .said{font-size:1.32rem}
 .fb.win .truth{color:var(--accOn);opacity:.8} .fb.win .exp{color:var(--accOn);opacity:.95}
 
+/* AIに質問用コピー */
+.copyai{align-self:flex-start;border-radius:99px;background:var(--card);color:var(--tx2);
+  font-size:.78rem;font-weight:600;padding:.48rem .95rem;box-shadow:var(--sh);
+  transition:transform .07s}
+.copyai:active{transform:scale(.96)}
+.fb.win .copyai{background:rgba(255,255,255,.28);color:var(--accOn);box-shadow:none}
+.copyai.mini{margin-top:.6rem;font-size:.74rem;padding:.42rem .85rem;
+  background:var(--card2);box-shadow:none}
+
 /* buttons */
 .cta{width:100%;border-radius:var(--r3);background:var(--acc);color:var(--accOn);
   padding:1.1rem;font-size:1rem;font-weight:700;transition:transform .08s,filter .15s}
@@ -938,6 +947,42 @@ let sess=[],idx=0,hit=0,miss=[],cleared=[],picked=null,run=0,best=0,marks=[],sta
 /* 五肢選択かどうか。o（選択肢）を持っていればそう。 */
 function isMC(q){return Array.isArray(q.o)}
 function ansText(q){return isMC(q)?q.a.join("・"):(q.a?"○":"×")}
+
+/* AIに質問するとき用に、問題・答え・解説をひとかたまりの文章にする */
+function aiText(q){
+  const L=[];
+  L.push("証券外務員一種試験の勉強中です。以下の問題がよくわからないので、なぜこの答えになるのか、わかりやすく解説してください。");
+  L.push("");
+  L.push(`【問題】（${q.c}章 ${q.s} 問${q.n}・${isMC(q)?"五肢選択":"○×問題"}）`);
+  L.push(q.q);
+  if(q.t&&q.t.length){L.push("");q.t.forEach(r=>L.push(r.join("｜")))}
+  if(isMC(q)){L.push("");L.push("【選択肢】");q.o.forEach((t,i)=>L.push(`${i+1}. ${t}`))}
+  L.push("");
+  L.push(`【正解】${ansText(q)}`);
+  L.push("");
+  L.push("【問題集の解説】");
+  L.push(q.e);
+  return L.join("\n");
+}
+function copyAI(q,btn){
+  const t=aiText(q);
+  const done=()=>{const old=btn.textContent;btn.textContent="コピーしました！";
+    setTimeout(()=>{btn.textContent=old},1500)};
+  const fallback=()=>{
+    try{
+      const ta=document.createElement("textarea");ta.value=t;
+      ta.style.position="fixed";ta.style.opacity="0";
+      document.body.appendChild(ta);ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      done();
+    }catch(e){}
+  };
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(t).then(done).catch(fallback);
+  }else fallback();
+}
+
 let view="home";
 const app=document.getElementById("app");
 
@@ -1077,7 +1122,7 @@ function render(){
 }
 function card(q,badge,done){
   const r=rec(q);
-  return h(`<div class="item${done?" done":""}">
+  const el=h(`<div class="item${done?" done":""}">
     <div class="rowtop">
       <span class="tg">${q.c}章 ${q.s} 問${q.n} ・ ${q.d}${isMC(q)?" ・ 五肢選択":""}</span>
       ${badge||(r&&r.wrong?`<span class="cnt">${r.wrong}回まちがえた</span>`:"")}
@@ -1086,7 +1131,12 @@ function card(q,badge,done){
     ${qtable(q)}
     ${isMC(q)?`<p class="qt" style="color:var(--tx2)">${q.o.map((t,i)=>`${i+1}. ${esc(t)}`).join("　")}</p>`:""}
     <p class="an"><b>正しくは ${ansText(q)}</b>　${q.x?`<span class="sup">補足</span>`:""}${esc(q.e)}</p>
-  </div>`)}
+  </div>`);
+  const cp=h(`<button class="copyai mini" type="button">AIに質問（コピー）</button>`);
+  cp.addEventListener("click",()=>copyAI(q,cp));
+  el.appendChild(cp);
+  return el;
+}
 
 const ON={all:"全部から",todo:"要復習だけ",past:"つまずいた問題",unseen:"未着手だけ"};
 const TY={all:"",ox:"○×だけ ・ ",mc:"五肢選択だけ ・ "};
@@ -1322,11 +1372,15 @@ function quiz(){
     const sub=win?"要復習から外しました　残り "+tally(Q).todo+"問"
       :ok?`答えは ${ansText(q)}`
       :`あなたの答え ${mine} ／ 正しくは ${ansText(q)} ・ 要復習に入れました`;
-    dock.appendChild(h(`<div class="fb ${ok?"ok":"ng"}${win?" win":""}">
+    const fb=h(`<div class="fb ${ok?"ok":"ng"}${win?" win":""}">
       <div class="head"><span class="glyph">${ok?"○":"×"}</span>
         <span><span class="said">${said}</span><span class="truth">${sub}</span></span></div>
       <p class="exp">${q.x?`<span class="sup">補足</span>`:""}${esc(q.e)}</p>
-    </div>`));
+    </div>`);
+    const cp=h(`<button class="copyai" type="button">AIに質問（コピー）</button>`);
+    cp.addEventListener("click",()=>copyAI(q,cp));
+    fb.appendChild(cp);
+    dock.appendChild(fb);
     const c=h(`<button class="cta${win?"":" plain"}" type="button">${idx+1<sess.length?"つづける":"結果を見る"}</button>`);
     c.addEventListener("click",next);
     dock.appendChild(c);
