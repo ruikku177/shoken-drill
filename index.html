@@ -185,6 +185,14 @@ p{margin:0}
 
 .note{font-size:.78rem;color:var(--tx3);display:flex;justify-content:space-between;
   gap:1rem;font-variant-numeric:tabular-nums;padding:0 .2rem}
+/* 問題集の切り替え（別冊の必須問題集があるときだけ出る） */
+.banksw{display:flex;gap:.35rem;background:var(--card2);padding:.3rem;border-radius:99px}
+.banksw .bk{flex:1;border-radius:99px;padding:.62rem .5rem;font-size:.86rem;font-weight:600;
+  color:var(--tx2);display:flex;align-items:center;justify-content:center;gap:.4rem;
+  transition:background .15s,color .15s}
+.banksw .bk i{font-style:normal;font-size:.72rem;opacity:.65;font-variant-numeric:tabular-nums}
+.banksw .bk.on{background:var(--card);color:var(--tx);box-shadow:var(--sh);cursor:default}
+
 .scope{display:flex;align-items:baseline;justify-content:space-between;gap:.8rem;
   padding:0 .2rem;font-size:.82rem;color:var(--tx2);line-height:1.5}
 .scope b{font-size:.82rem;font-weight:700;color:var(--tx3);
@@ -259,7 +267,7 @@ p{margin:0}
 <script>
 /* ===== 問題データ ここから =====
    ../問題バンク/*.md から ../ビルド.py が生成します。ここを手で書き換えないこと。 */
-const Q=[
+const Q_ALL=[
 {c:1,s:"会社",n:1,d:"B",x:1,a:1,q:"会社の形態として、会社法は株式会社、合名会社、合資会社、合同会社の4種類を規定している。",e:"会社法が定める会社は株式会社・合名会社・合資会社・合同会社の4種類。数を増減させたり、有限会社を混ぜたりして出される。"},
 {c:1,s:"会社",n:2,d:"A",x:1,a:1,q:"株式会社において、社員は会社の債務について何の責任も負わないが、合名会社において、社員は会社に対して出資義務を負うだけでなく、会社の債務につき、債権者に対して直接・連帯・無限の責任を負う。",e:"ここでいう「社員」は従業員ではなく出資者のこと。株式会社の出資者は出資額までしか損をしない。合名会社の社員は債権者に対して直接・連帯・無限の責任を負う。"},
 {c:1,s:"会社",n:3,d:"A",x:1,a:1,q:"合資会社には、無限責任社員が最低1名必要で、他に有限責任社員が1名以上いる。",e:"合資会社は無限責任社員と有限責任社員の両方が要る。無限責任社員だけなら合名会社、有限責任社員だけなら合同会社。"},
@@ -1068,20 +1076,50 @@ const Q=[
 ];
 const BUILT="2026/09/02";
 const CHAPTER_TITLES={"10": "投資信託及び投資法人に関する業務", "12": "経済・金融・財政の常識", "13": "証券市場の基礎知識", "14": "セールス業務", "1": "株式会社法概論", "2": "財務諸表と企業分析", "3": "株式業務①", "4": "取引所定款・諸規則", "5": "協会定款・諸規則", "6": "金融商品取引法", "7": "金融商品の勧誘・販売に関係する法律", "8": "付随業務", "9": "債券業務"};
+const Q_MUST=[
+
+];
+const MUST_TITLES={};
 /* ===== 問題データ ここまで ===== */
 
-const KEY="gaimuin-drill-v2", OLD="gaimuin-drill-v1";
+const KEY="gaimuin-drill-v2", OLD="gaimuin-drill-v1", BANKKEY="gaimuin-bank";
+
+/* 出題する問題集。"main"＝本編、"must"＝別冊の必須問題集。
+   必須問題バンクが空のうちは MUSTQ が空配列になり、切り替えボタンも出ない。
+   解答記録は qid() で必須側に "m" を付けて分けているので、
+   切り替えても互いの要復習リスト・まちがい履歴は混ざらない。 */
+const MUSTQ=(typeof Q_MUST!=="undefined")?Q_MUST:[];
+const HAS_MUST=MUSTQ.length>0;
+function bankPref(){try{return localStorage.getItem(BANKKEY)}catch(e){return null}}
+let bank=(HAS_MUST&&bankPref()==="must")?"must":"main";
+let Q=bank==="must"?MUSTQ:Q_ALL;
 let S=load(), filt={ch:[],dif:[],only:"all",type:"all"}, size=10, order="mix", openSet=false, askReset=false;
 
 /* 章と難易度は問題データから自動で作る。章が増えたら勝手に選択肢も増える。
    章の名前は CHAPTER_TITLES（章見出しそのもの）を使う。無ければ、節（q.s）を
    つなげた名前にフォールバックする（節が多い章だと長くなるので最後の手段）。 */
-const _titles=(typeof CHAPTER_TITLES!=="undefined")?CHAPTER_TITLES:{};
-const CHAPTERS=[...new Set(Q.map(q=>q.c))].sort((a,b)=>a-b).map(c=>({
-  c, name:_titles[c]||[...new Set(Q.filter(q=>q.c===c).map(q=>q.s))].join("・"),
-  n:Q.filter(q=>q.c===c).length}));
-const DIFFS=[...new Set(Q.map(q=>q.d))].sort().map(d=>({
-  d, n:Q.filter(q=>q.d===d).length}));
+function bankTitles(){
+  const t=bank==="must"?(typeof MUST_TITLES!=="undefined"?MUST_TITLES:{})
+                       :(typeof CHAPTER_TITLES!=="undefined"?CHAPTER_TITLES:{});
+  return t||{};
+}
+function chapterList(){const t=bankTitles();
+  return [...new Set(Q.map(q=>q.c))].sort((a,b)=>a-b).map(c=>({
+    c, name:t[c]||[...new Set(Q.filter(q=>q.c===c).map(q=>q.s))].join("・"),
+    n:Q.filter(q=>q.c===c).length}));}
+function diffList(){return [...new Set(Q.map(q=>q.d))].sort().map(d=>({
+  d, n:Q.filter(q=>q.d===d).length}));}
+let CHAPTERS=chapterList(), DIFFS=diffList();
+
+/* 問題集を切り替える。条件はいったん全解除する（章番号の意味が変わるため） */
+function setBank(b){
+  if(bank===b)return;
+  bank=b; Q=(b==="must")?MUSTQ:Q_ALL;
+  CHAPTERS=chapterList(); DIFFS=diffList();
+  filt={ch:[],dif:[],only:"all",type:"all"}; openSet=false; askReset=false;
+  try{localStorage.setItem(BANKKEY,b)}catch(e){}
+  view="home"; render();
+}
 let sess=[],idx=0,hit=0,miss=[],cleared=[],picked=null,run=0,best=0,marks=[],states=[],picks=[];
 /* 五肢選択かどうか。o（選択肢）を持っていればそう。 */
 function isMC(q){return Array.isArray(q.o)}
@@ -1141,7 +1179,15 @@ function load(){
   return {};
 }
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
-function qid(q){return q.c+"-"+q.n}
+/* 必須問題集の問題は b:1 を持つので "m6-49" になる。本編は今までどおり "6-49" のまま
+   （接頭辞を付けないので、これまでの解答記録がそのまま生きる）。 */
+function qid(q){return (q.b?"m":"")+q.c+"-"+q.n}
+/* いま開いている問題集の記録だけ消す。もう一方の問題集の履歴は残す */
+function resetBank(){
+  const mine=new Set(Q.map(qid));
+  Object.keys(S).forEach(k=>{if(mine.has(k))delete S[k]});
+  save();
+}
 function rec(q){return S[qid(q)]}
 function todo(q){const r=rec(q);return !!(r&&r.last===0)}
 function esc(t){return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
@@ -1290,9 +1336,21 @@ function sumDif(){
 }
 
 /* ---------- home ---------- */
+function bankName(){return bank==="must"?"必須問題集":"全問題"}
 function home(){
   app.appendChild(h(`<header class="top"><h1>証券外務員問題集</h1><span class="stamp">${Q.length}問</span></header>`));
   const body=h(`<div class="grow"></div>`);
+  /* 別冊の必須問題集がある場合だけ切り替えを出す。無ければ今までどおりの見た目 */
+  if(HAS_MUST){
+    const sw=h(`<div class="banksw"></div>`);
+    [["main","全問題",Q_ALL.length],["must","必須問題集",MUSTQ.length]].forEach(([b,label,n])=>{
+      const on=bank===b;
+      const btn=h(`<button class="bk${on?" on":""}" type="button" aria-pressed="${on}">${label}<i>${n}問</i></button>`);
+      if(!on)btn.addEventListener("click",()=>setBank(b));
+      sw.appendChild(btn);
+    });
+    body.appendChild(sw);
+  }
   const sp=scopePool(), t=tally(sp), pc=n=>t.total?n/t.total*100:0;
   body.appendChild(h(`<div class="scope"><span>${scopeLabel()}</span><b>${t.total}問</b></div>`));
   body.appendChild(h(`<div class="tiles">
@@ -1383,12 +1441,14 @@ function home(){
   dock.appendChild(lg);
   if(askReset){
     const g=tally(Q);  /* 消えるのは全範囲なので、絞り込みに関係なく全体の数字を出す */
+    const other=HAS_MUST?(bank==="must"?"全問題":"必須問題集"):"";
     const dg=h(`<div class="danger">
-      <p>いままでの記録を<b>すべて</b>消します。絞り込みに関係なく全範囲が対象です。<br>
-      要復習 ${g.todo}問、つまずいた記録 ${g.past}問、${g.tries}回ぶんの解答履歴が消えて、最初の状態に戻ります。</p>
+      <p>${HAS_MUST?`<b>${bankName()}</b>の記録を`:"いままでの記録を"}<b>すべて</b>消します。絞り込みに関係なく全範囲が対象です。<br>
+      要復習 ${g.todo}問、つまずいた記録 ${g.past}問、${g.tries}回ぶんの解答履歴が消えて、最初の状態に戻ります。
+      ${other?`<br>${other}の記録は消えません。`:""}</p>
       <div class="row"></div></div>`);
     const yes=h(`<button class="yes" type="button">消す</button>`);
-    yes.addEventListener("click",()=>{S={};save();askReset=false;render()});
+    yes.addEventListener("click",()=>{resetBank();askReset=false;render()});
     const no=h(`<button class="no" type="button">やめる</button>`);
     no.addEventListener("click",()=>{askReset=false;render()});
     dg.querySelector(".row").appendChild(yes);dg.querySelector(".row").appendChild(no);
