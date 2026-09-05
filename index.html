@@ -197,6 +197,7 @@ p{margin:0}
 .exam p{font-size:.8rem;opacity:.75;margin:0 0 .15rem;line-height:1.5}
 .exam .cta i{display:block;font-style:normal;font-size:.74rem;opacity:.75;font-weight:500;margin-top:.15rem}
 .exam-score{margin-top:.4rem}
+.exam-score .pf{font-style:normal;font-weight:700}
 
 .scope{display:flex;align-items:baseline;justify-content:space-between;gap:.8rem;
   padding:0 .2rem;font-size:.82rem;color:var(--tx2);line-height:1.5}
@@ -2131,7 +2132,7 @@ function result(){
     const okOf=list=>list.filter(q=>{const i=sess.indexOf(q);return marks[i]&&marks[i]!=="ng"}).length;
     const ox=sess.filter(q=>!isMC(q)), mc=sess.filter(isMC);
     body.appendChild(h(`<div class="score exam-score"><b>${e.got}<i> / ${e.full}点</i></b>
-      <span>本番換算（○×2点・五肢10点）・合格ライン7割＝${e.line}点 → <b>${e.pass?"到達":"あと"+(e.line-e.got)+"点"}</b></span>
+      <span>本番換算（○×2点・五肢10点）・合格ライン7割＝${e.line}点 → <em class="pf">${e.pass?"到達":"あと"+(e.line-e.got)+"点"}</em></span>
       <span>○× ${okOf(ox)}/${ox.length}問 ・ 五肢 ${okOf(mc)}/${mc.length}問${exam===null?" ・ 抜粋なので本番形式ではありません":""}</span></div>`));
   }
 
